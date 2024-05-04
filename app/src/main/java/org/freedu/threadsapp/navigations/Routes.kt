@@ -8,4 +8,6 @@ sealed class Routes(val routes: String) {
     object Notification:Routes("notification")
     object AddThreads:Routes("addThreads")
     object BottomNav:Routes("bottom_nav")
+    object Login:Routes("login")
+    object Register:Routes("register")
 }

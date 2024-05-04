@@ -25,9 +25,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import org.freedu.threadsapp.navigations.Routes
 
 @Composable
-fun Login() {
+fun Login(navController: NavHostController) {
     var email by remember {
         mutableStateOf("")
     }
@@ -49,9 +51,10 @@ fun Login() {
             )
         )
         Box(modifier = Modifier.height(50.dp))
-        OutlinedTextField(value = email, onValueChange = {
-            email = it
-        },
+        OutlinedTextField(
+            value = email, onValueChange = {
+                email = it
+            },
             label = {
                 Text(text = "Email")
             }, keyboardOptions = KeyboardOptions(
@@ -60,9 +63,10 @@ fun Login() {
             modifier = Modifier.fillMaxWidth()
         )
         Box(modifier = Modifier.height(20.dp))
-        OutlinedTextField(value = password, onValueChange = {
-            password = it
-        },
+        OutlinedTextField(
+            value = password, onValueChange = {
+                password = it
+            },
             label = {
                 Text(text = "Password")
             }, keyboardOptions = KeyboardOptions(
@@ -72,8 +76,10 @@ fun Login() {
         )
         Box(modifier = Modifier.height(30.dp))
 
-        ElevatedButton(onClick = { /*TODO*/ },
-            modifier = Modifier.fillMaxWidth()) {
+        ElevatedButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = "Login",
                 style = TextStyle(
@@ -81,11 +87,18 @@ fun Login() {
                     fontSize = 20.sp
                 ), modifier = Modifier.padding(vertical = 6.dp)
             )
-            
+
         }
         Box(modifier = Modifier.height(100.dp))
-        TextButton(onClick = { /*TODO*/ },
-            modifier = Modifier.fillMaxWidth()) {
+        TextButton(
+            onClick = {
+                navController.navigate(Routes.Register.routes) {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = "New User? Register",
                 style = TextStyle(
@@ -100,5 +113,5 @@ fun Login() {
 @Preview(showBackground = true)
 @Composable
 fun LoginView() {
-    Login()
+//    Login()
 }

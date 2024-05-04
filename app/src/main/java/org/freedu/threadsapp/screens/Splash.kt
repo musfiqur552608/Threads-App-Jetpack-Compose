@@ -11,6 +11,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import org.freedu.threadsapp.R
 import org.freedu.threadsapp.navigations.Routes
@@ -31,7 +33,19 @@ fun Splash(navController: NavController){
     }
     LaunchedEffect(true ) {
         delay(3000)
-        navController.navigate(Routes.BottomNav.routes)
+        if(FirebaseAuth.getInstance().currentUser != null){
+            navController.navigate(Routes.BottomNav.routes){
+                popUpTo(navController.graph.startDestinationId)
+                launchSingleTop = true
+            }
+        }
+        else{
+            navController.navigate(Routes.Login.routes){
+                popUpTo(navController.graph.startDestinationId)
+                launchSingleTop = true
+            }
+        }
+
     }
 
 }

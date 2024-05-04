@@ -7,8 +7,10 @@ import androidx.navigation.compose.composable
 import org.freedu.threadsapp.screens.AddThreads
 import org.freedu.threadsapp.screens.BottomNav
 import org.freedu.threadsapp.screens.Home
+import org.freedu.threadsapp.screens.Login
 import org.freedu.threadsapp.screens.Notification
 import org.freedu.threadsapp.screens.Profile
+import org.freedu.threadsapp.screens.Register
 import org.freedu.threadsapp.screens.Search
 import org.freedu.threadsapp.screens.Splash
 
@@ -35,6 +37,12 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Routes.BottomNav.routes) {
             BottomNav(navController)
+        }
+        composable(Routes.Login.routes) {
+            Login(navController)
+        }
+        composable(Routes.Register.routes) {
+            Register(navController)
         }
     }
 }
