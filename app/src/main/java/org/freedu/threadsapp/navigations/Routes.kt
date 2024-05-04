@@ -7,4 +7,5 @@ sealed class Routes(val routes: String) {
     object Profile:Routes("profile")
     object Notification:Routes("notification")
     object AddThreads:Routes("addThreads")
+    object BottomNav:Routes("bottom_nav")
 }
