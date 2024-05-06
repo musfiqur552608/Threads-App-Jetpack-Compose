@@ -7,7 +7,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import org.freedu.threadsapp.model.UserModel
@@ -31,15 +34,37 @@ class AuthViewModel : ViewModel() {
         _firebaseUser.value = auth.currentUser
     }
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, context: Context) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     _firebaseUser.postValue(auth.currentUser)
+                    getData(auth.currentUser!!.uid, context)
                 } else {
-                    _error.postValue("Something went wrong.")
+                    _error.postValue(it.exception?.message)
                 }
             }
+    }
+
+    private fun getData(uid: String, context: Context) {
+        userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userData = snapshot.getValue(UserModel::class.java)
+                SharedPref.storeData(
+                    userData!!.name,
+                    userData!!.email,
+                    userData!!.bio,
+                    userData!!.username,
+                    userData!!.toString,
+                    context
+                )
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
     }
 
     fun register(
@@ -97,14 +122,14 @@ class AuthViewModel : ViewModel() {
         username: String,
         toString: String,
         uid: String,
-        context:Context
+        context: Context
     ) {
         val userData = UserModel(email, password, name, bio, username, toString, uid)
         userRef.child(uid).setValue(userData)
             .addOnSuccessListener {
                 SharedPref.storeData(name, email, bio, username, toString, context)
             }
-            .addOnFailureListener{
+            .addOnFailureListener {
 
             }
     }
