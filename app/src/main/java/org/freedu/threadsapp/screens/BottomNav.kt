@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,7 +25,7 @@ import org.freedu.threadsapp.navigations.Routes
 
 
 @Composable
-fun BottomNav(navController: NavController) {
+fun BottomNav(navController: NavHostController) {
 
     val navController1 = rememberNavController()
     Scaffold(bottomBar = { MyBottomBar(navController1) }) {
@@ -46,7 +47,7 @@ fun BottomNav(navController: NavController) {
                 AddThreads()
             }
             composable(route = Routes.Profile.routes) {
-                Profile()
+                Profile(navController)
             }
 
 

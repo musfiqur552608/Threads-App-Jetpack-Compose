@@ -21,8 +21,8 @@ class AuthViewModel : ViewModel() {
     private val storageRef = Firebase.storage.reference
     private val imageRef = storageRef.child("users/${UUID.randomUUID()}.jpg")
 
-    private val _firebaseUser = MutableLiveData<FirebaseUser>()
-    val firebaseUser: LiveData<FirebaseUser> = _firebaseUser
+    private val _firebaseUser = MutableLiveData<FirebaseUser?>()
+    val firebaseUser: MutableLiveData<FirebaseUser?> = _firebaseUser
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
@@ -107,5 +107,10 @@ class AuthViewModel : ViewModel() {
             .addOnFailureListener{
 
             }
+    }
+
+    fun logout() {
+        auth.signOut()
+        _firebaseUser.postValue(null)
     }
 }
