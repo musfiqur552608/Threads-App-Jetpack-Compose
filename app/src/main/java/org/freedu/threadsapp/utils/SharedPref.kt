@@ -16,7 +16,7 @@ object SharedPref {
 
     fun getUserName(context: Context): String? {
         val sharedPreferences = context.getSharedPreferences("users", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("userName","")
+        return sharedPreferences.getString("username","")
     }
     fun getName(context: Context): String? {
         val sharedPreferences = context.getSharedPreferences("users", Context.MODE_PRIVATE)
