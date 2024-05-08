@@ -41,12 +41,19 @@ fun Profile(navHostController: NavHostController) {
     val userViewModel: UserViewModel = viewModel()
     val threads by userViewModel.threads.observeAsState()
 
+
+    val followerList by userViewModel.followerList.observeAsState(null)
+    val followingList by userViewModel.followingList.observeAsState(null)
+
     val user = UserModel(
         name = SharedPref.getName(context)!!,
         username = SharedPref.getUserName(context)!!,
         toString = SharedPref.getImageUrl(context)!!,
 
         )
+
+
+
 
 
 
@@ -60,9 +67,18 @@ fun Profile(navHostController: NavHostController) {
             }
         }else{
             userViewModel.fetchThreads(FirebaseAuth.getInstance().currentUser!!.uid)
+            var currentUserId = ""
+            if(FirebaseAuth.getInstance().currentUser != null){
+                currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+            }
+            if(currentUserId!=null){
+                userViewModel.getFollowers(currentUserId)
+                userViewModel.getFollowing(currentUserId)
+            }
         }
 
     }
+
 
 
     LazyColumn() {
@@ -113,7 +129,7 @@ fun Profile(navHostController: NavHostController) {
                     }
                 )
                 Text(
-                    text = "0 Followers", style = TextStyle(
+                    text = "Followers ${followerList!!.size}", style = TextStyle(
                         fontSize = 20.sp
                     ),
                     modifier = Modifier.constrainAs(followers) {
@@ -122,7 +138,7 @@ fun Profile(navHostController: NavHostController) {
                     }
                 )
                 Text(
-                    text = "0 Following", style = TextStyle(
+                    text = "Following ${followingList!!.size}", style = TextStyle(
                         fontSize = 20.sp
                     ),
                     modifier = Modifier.constrainAs(following) {

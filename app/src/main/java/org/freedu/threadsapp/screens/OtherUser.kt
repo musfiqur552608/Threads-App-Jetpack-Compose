@@ -25,6 +25,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
 import org.freedu.threadsapp.item_view.ThreadItem
 import org.freedu.threadsapp.navigations.Routes
 import org.freedu.threadsapp.utils.SharedPref
@@ -39,10 +40,18 @@ fun OtherUser(navHostController: NavHostController, uid: String) {
     val userViewModel: UserViewModel = viewModel()
     val threads by userViewModel.threads.observeAsState(null)
     val users by userViewModel.user.observeAsState(null)
+    val followerList by userViewModel.followerList.observeAsState(null)
+    val followingList by userViewModel.followingList.observeAsState(null)
 
 
     userViewModel.fetchThreads(uid)
     userViewModel.fetchUser(uid)
+    userViewModel.getFollowers(uid)
+    userViewModel.getFollowing(uid)
+    var currentUserId = ""
+    if(FirebaseAuth.getInstance().currentUser != null){
+        currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+    }
 
 
     LaunchedEffect(firebaseUser) {
@@ -106,7 +115,7 @@ fun OtherUser(navHostController: NavHostController, uid: String) {
                     }
                 )
                 Text(
-                    text = "0 Followers", style = TextStyle(
+                    text = "Followers ${followerList!!.size}", style = TextStyle(
                         fontSize = 20.sp
                     ),
                     modifier = Modifier.constrainAs(followers) {
@@ -115,7 +124,7 @@ fun OtherUser(navHostController: NavHostController, uid: String) {
                     }
                 )
                 Text(
-                    text = "0 Following", style = TextStyle(
+                    text = "Following ${followingList!!.size}", style = TextStyle(
                         fontSize = 20.sp
                     ),
                     modifier = Modifier.constrainAs(following) {
@@ -124,12 +133,16 @@ fun OtherUser(navHostController: NavHostController, uid: String) {
                     }
                 )
                 ElevatedButton(onClick = {
+                    if(currentUserId!=null){
+                        userViewModel.followUsers(uid, currentUserId)
+                    }
+
                 },
                     modifier = Modifier.constrainAs(button) {
                         top.linkTo(following.bottom)
                         start.linkTo(parent.start)
                     }) {
-                    Text(text = "Follow")
+                    Text(text = if(followerList!=null && followerList!!.isNotEmpty() && followerList!!.contains(currentUserId)) "Following" else "Follow")
                 }
             }
         }

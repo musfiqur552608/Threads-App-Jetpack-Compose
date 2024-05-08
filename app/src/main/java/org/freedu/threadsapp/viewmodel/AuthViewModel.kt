@@ -11,6 +11,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import org.freedu.threadsapp.model.UserModel
@@ -47,6 +48,8 @@ class AuthViewModel : ViewModel() {
     }
 
     private fun getData(uid: String, context: Context) {
+
+
         userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userData = snapshot.getValue(UserModel::class.java)
@@ -106,6 +109,12 @@ class AuthViewModel : ViewModel() {
         uid: String,
         context: Context
     ) {
+        val firestoreDb = Firebase.firestore
+        val followerRef = firestoreDb.collection("followers").document(uid)
+        val followingRef = firestoreDb.collection("following").document(uid)
+
+        followingRef.set(mapOf("followingIds" to listOf<String>()) )
+        followerRef.set(mapOf("followerIds" to listOf<String>()) )
         val uploadTask = imageRef.putFile(imageUri)
         uploadTask.addOnSuccessListener {
             imageRef.downloadUrl.addOnSuccessListener {
