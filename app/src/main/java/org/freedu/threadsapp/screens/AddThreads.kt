@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -17,14 +18,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,12 +47,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
+import okhttp3.Route
 import org.freedu.threadsapp.R
+import org.freedu.threadsapp.navigations.Routes
 import org.freedu.threadsapp.utils.SharedPref
+import org.freedu.threadsapp.viewmodel.AddThreadViewModel
 
 @Composable
-fun AddThreads() {
+fun AddThreads(navHostController: NavHostController) {
+    val threadViewModel: AddThreadViewModel = viewModel()
+    val isPosted by threadViewModel.isPosted.observeAsState(false)
+
     val context = LocalContext.current
 
     var thread by remember {
@@ -78,6 +92,19 @@ fun AddThreads() {
             }
 
         }
+    
+    LaunchedEffect(isPosted) {
+        if(isPosted!!) {
+            thread = ""
+            imageUri = null
+            Toast.makeText(context, "Thread Added", Toast.LENGTH_SHORT).show()
+            navHostController.navigate(Routes.Home.routes){
+                popUpTo(Routes.AddThreads.routes){
+                    inclusive = true
+                }
+            }
+        }
+    }
 
     ConstraintLayout(
         modifier = Modifier
@@ -92,7 +119,11 @@ fun AddThreads() {
                     start.linkTo(parent.start)
                 }
                 .clickable {
-
+                    navHostController.navigate(Routes.Home.routes){
+                        popUpTo(Routes.AddThreads.routes){
+                            inclusive = true
+                        }
+                    }
                 })
         Text(
             text = "Add Thread", style = TextStyle(
@@ -138,8 +169,9 @@ fun AddThreads() {
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .fillMaxWidth())
 
-        if(imageUri==null){
-            Image(painter = painterResource(id = R.drawable.attachment), contentDescription = "attach media",
+        if (imageUri == null) {
+            Image(painter = painterResource(id = R.drawable.attachment),
+                contentDescription = "attach media",
                 modifier = Modifier
                     .constrainAs(attachMedia) {
                         top.linkTo(editText.bottom)
@@ -155,28 +187,58 @@ fun AddThreads() {
                             permissionLauncher.launch(permissionToRequest)
                         }
                     })
-        }else{
+        } else {
             Box(modifier = Modifier
                 .background(Color.Gray)
-                .padding(12.dp)
+                .padding(1.dp)
                 .constrainAs(imageBox) {
                     top.linkTo(editText.bottom)
                     start.linkTo(editText.start)
                     end.linkTo(parent.end)
                 }
-                .height(250.dp)){
-                Image(painter = rememberAsyncImagePainter(model = imageUri),
+                .height(250.dp)) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = imageUri),
                     contentDescription = "profile",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight()
-                    , contentScale = ContentScale.Crop
+                        .fillMaxHeight(), contentScale = ContentScale.Crop
                 )
                 Icon(imageVector = Icons.Default.Close, contentDescription = "remove",
-                    modifier = Modifier.align(Alignment.TopEnd).clickable {
-                        imageUri = null
-                    })
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .clickable {
+                            imageUri = null
+                        })
             }
+        }
+        Text(
+            text = "Anyone can reply", style = TextStyle(
+                fontSize = 20.sp
+            ),
+            modifier = Modifier.constrainAs(replyText) {
+                start.linkTo(parent.start, margin = 12.dp)
+                bottom.linkTo(parent.bottom, margin = 12.dp)
+            }
+        )
+        TextButton(onClick = {
+            if (imageUri == null) {
+                threadViewModel.saveData(thread, FirebaseAuth.getInstance().currentUser!!.uid, "")
+            }else{
+                threadViewModel.saveImage(thread, FirebaseAuth.getInstance().currentUser!!.uid, imageUri!!)
+            }
+        }, modifier = Modifier.constrainAs(button) {
+            end.linkTo(parent.end, margin = 12.dp)
+            bottom.linkTo(parent.bottom, margin = 12.dp)
+        }) {
+            Text(
+                text = "Post",
+                style = TextStyle(
+                    fontSize = 20.sp
+                ),
+
+                )
+
         }
 
     }
@@ -189,19 +251,24 @@ fun BasicTextFieldWithHint(
 ) {
     Row(modifier = modifier) {
         if (value.isEmpty()) {
-            Text(text = hint, color = Color.Gray, modifier = Modifier.weight(1f)) // Fill remaining space
+            Text(
+                text = hint,
+                color = Color.Gray,
+                modifier = Modifier.weight(1f)
+            ) // Fill remaining space
         }
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
             textStyle = TextStyle.Default.copy(color = Color.Black),
-            modifier = Modifier.weight(1f) // Fill remaining space
+            modifier = Modifier.weight(1f)// Fill remaining space
         )
+
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun AddThreadsView() {
-    AddThreads()
+//    AddThreads()
 }
