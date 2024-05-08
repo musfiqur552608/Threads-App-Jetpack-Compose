@@ -9,6 +9,7 @@ import org.freedu.threadsapp.screens.BottomNav
 import org.freedu.threadsapp.screens.Home
 import org.freedu.threadsapp.screens.Login
 import org.freedu.threadsapp.screens.Notification
+import org.freedu.threadsapp.screens.OtherUser
 import org.freedu.threadsapp.screens.Profile
 import org.freedu.threadsapp.screens.Register
 import org.freedu.threadsapp.screens.Search
@@ -43,6 +44,10 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Routes.Register.routes) {
             Register(navController)
+        }
+        composable(Routes.OtherUsers.routes) {
+            val data = it.arguments?.getString("data")
+            OtherUser(navController, data!!)
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.freedu.threadsapp.item_view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import coil.compose.rememberAsyncImagePainter
 import org.freedu.threadsapp.R
 import org.freedu.threadsapp.model.ThreadModel
 import org.freedu.threadsapp.model.UserModel
+import org.freedu.threadsapp.navigations.Routes
 
 @Composable
 fun UserItem(
@@ -38,6 +40,10 @@ fun UserItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                .clickable {
+                    val routes = Routes.OtherUsers.routes.replace("{data}",users.uid)
+                    navHostController.navigate(routes)
+                }
         ) {
             val (userImage, userName, date, time, title, image) = createRefs()
             Image(painter = rememberAsyncImagePainter(model = users.toString),
